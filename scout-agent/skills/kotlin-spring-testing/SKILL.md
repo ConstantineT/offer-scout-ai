@@ -36,6 +36,16 @@ fun `fetchPage returns fallback for timeout`() {
 - Keep assertions loose for nondeterministic AI output.
 - Cover important invariants and edge cases, not every possible branch.
 
+## Coverage
+
+- Use JaCoCo for Kotlin coverage.
+- Keep `./gradlew test` wired to generate the report and run coverage verification.
+- Check the HTML report at `build/reports/jacoco/test/html/index.html`.
+- Treat coverage failures as a signal to add meaningful tests first.
+- Do not lower thresholds casually; prefer raising them gradually.
+- Do not add empty or low-value tests only to satisfy coverage.
+- Focus coverage on business logic, request boundaries, fallbacks, limits, errors, and reactive behavior.
+
 ## Useful Checks
 
 - Success path.

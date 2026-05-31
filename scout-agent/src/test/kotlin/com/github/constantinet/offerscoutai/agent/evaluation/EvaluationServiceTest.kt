@@ -9,6 +9,7 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.core.io.ByteArrayResource
 import reactor.test.StepVerifier
 
 class EvaluationServiceTest {
@@ -17,7 +18,11 @@ class EvaluationServiceTest {
     private val requestSpec = mock(ChatClient.ChatClientRequestSpec::class.java)
     private val callResponseSpec = mock(ChatClient.CallResponseSpec::class.java)
     private val webTool = mock(WebTool::class.java)
-    private val evaluationService = EvaluationService(chatClient, webTool)
+    private val evaluationService = EvaluationService(
+        chatClient = chatClient,
+        webTool = webTool,
+        systemPromptResource = ByteArrayResource(SYSTEM_PROMPT.toByteArray()),
+    )
 
     @Test
     fun `evaluate builds prompt and returns model content`() {
@@ -99,6 +104,7 @@ class EvaluationServiceTest {
     }
 
     companion object {
+        private const val SYSTEM_PROMPT = "Test system prompt"
         private const val OFFER_TEXT = "Kotlin Spring job"
         private const val PROFILE_CONTEXT = "Senior Kotlin developer"
     }
