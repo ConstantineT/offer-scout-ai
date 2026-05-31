@@ -43,6 +43,9 @@ Unix:
 ./gradlew bootJar
 ```
 
+`test` also runs JaCoCo coverage report and verification.
+Coverage report: `build/reports/jacoco/test/html/index.html`.
+
 If packaging fails because of stale duplicate classes, run:
 
 Windows:

@@ -95,6 +95,19 @@ Unix:
 ./gradlew bootJar
 ```
 
+`test` also generates the JaCoCo coverage report and runs coverage verification.
+
+Coverage report:
+
+```text
+build/reports/jacoco/test/html/index.html
+```
+
+Current coverage gates:
+
+- instruction coverage: 70%
+- branch coverage: 60%
+
 ## Architecture Notes
 
 - Controllers return `Mono` and do not block the WebFlux event loop.
