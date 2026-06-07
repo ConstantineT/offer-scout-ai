@@ -28,7 +28,7 @@ variable "artifact_repository_id" {
 }
 
 variable "state_bucket_name" {
-  description = "Optional Terraform state bucket name. Defaults to <project-id>-offer-scout-ai-tfstate."
+  description = "Optional Terraform state bucket name. Defaults to <project-id>-tfstate."
   type        = string
   default     = ""
 }

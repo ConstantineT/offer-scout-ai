@@ -3,6 +3,10 @@
 Creates one-time Google Cloud resources needed before CI/CD and the main
 deployment can run.
 
+The GitHub deployer is intentionally limited. It can push Docker images and
+update existing Cloud Run services, but it does not manage Terraform
+infrastructure.
+
 ## Apply
 
 ```bash

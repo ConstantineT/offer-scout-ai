@@ -8,7 +8,7 @@ Use the state bucket created by `infra/bootstrap`:
 
 ```bash
 terraform init \
-  -backend-config="bucket=<project-id>-offer-scout-ai-tfstate" \
+  -backend-config="bucket=<project-id>-tfstate" \
   -backend-config="prefix=infra/main"
 ```
 
@@ -56,7 +56,11 @@ terraform apply \
   -var="project_id=<your-gcp-project-id>"
 ```
 
-After adding secret versions, deploy the services:
+After adding secret versions, push the deployment workflow to `main` so GitHub
+Actions builds and pushes images to Artifact Registry. The first workflow run
+will skip Cloud Run updates if services do not exist yet.
+
+Then deploy the services manually with the pushed image tags:
 
 ```bash
 terraform apply \
@@ -67,3 +71,7 @@ terraform apply \
 ```
 
 After apply, set the Resend webhook URL to the `resend_webhook_url` output.
+
+Future pushes to `main` update existing Cloud Run service images through
+GitHub Actions. Terraform remains a manual Cloud Shell operation for
+infrastructure changes.

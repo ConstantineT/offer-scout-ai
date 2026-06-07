@@ -40,7 +40,7 @@ Production shape:
 - `scout-agent`: private Cloud Run service, invoked only by coordinator using Google ID tokens.
 - Cloud Tasks: async email processing after webhook acceptance.
 - Secret Manager: API keys and SMTP credentials.
-- Artifact Registry and GitHub Actions: image build and deployment pipeline.
+- Artifact Registry and GitHub Actions: image build, image push, and Cloud Run revision updates.
 
 Terraform lives in `infra/`:
 
@@ -67,7 +67,7 @@ Create the main infrastructure once without Cloud Run services:
 ```bash
 cd ../main
 terraform init \
-  -backend-config="bucket=<project-id>-offer-scout-ai-tfstate" \
+  -backend-config="bucket=<project-id>-tfstate" \
   -backend-config="prefix=infra/main"
 terraform apply -var="project_id=<your-gcp-project-id>"
 ```
@@ -98,7 +98,25 @@ Secret value shapes:
 
 `jina-api-key` is optional and is not injected unless `enable_jina_api_key=true`.
 
-After the first GitHub Actions deployment, set the Resend webhook URL to:
+Push the deployment workflow to `main`. The first GitHub Actions deployment
+pushes Docker images to Artifact Registry. If Cloud Run services do not exist
+yet, it skips service updates.
+
+Then create Cloud Run services manually with Terraform using the pushed image
+tags:
+
+```bash
+terraform apply \
+  -var="project_id=<your-gcp-project-id>" \
+  -var="deploy_services=true" \
+  -var="agent_image=<region>-docker.pkg.dev/<project>/offer-scout-ai/scout-agent:<commit-sha>" \
+  -var="coordinator_image=<region>-docker.pkg.dev/<project>/offer-scout-ai/scout-coordinator:<commit-sha>"
+```
+
+After that, future pushes to `main` update existing Cloud Run revisions without
+running Terraform.
+
+Set the Resend webhook URL to:
 
 ```text
 https://<scout-coordinator-cloud-run-url>/webhooks/resend

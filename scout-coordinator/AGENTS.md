@@ -23,6 +23,7 @@ Short instructions for AI agents working in `scout-coordinator`.
 - Production deployment is public Cloud Run for Resend, but webhook access must stay Svix-protected.
 - Production uses Cloud Tasks mode; the task callback URL may be derived from the Cloud Run request.
 - Production bundles Resend and Gmail credentials into `RESEND_CREDENTIALS` and `GMAIL_SMTP_CREDENTIALS`.
+- Terraform infrastructure applies are manual; GitHub Actions only pushes images and updates Cloud Run revisions.
 - Keep I/O async with `httpx`, `aiosmtplib`, and async Google clients.
 - Offload blocking parsing or auth helpers with `anyio.to_thread`.
 - Convert attachments to text before sending them to `scout-agent`; do not send raw bytes.

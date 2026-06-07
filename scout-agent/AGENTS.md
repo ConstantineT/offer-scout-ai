@@ -25,6 +25,7 @@ Short instructions for AI agents working in `scout-agent`.
 - Keep `spring-boot-devtools`; it supports IntelliJ rebuild/restart workflow.
 - Avoid magic numbers and string literals when configuration would make the intent clearer.
 - Production deployment is private Cloud Run; secrets come from Secret Manager env vars.
+- Terraform infrastructure applies are manual; GitHub Actions only pushes images and updates Cloud Run revisions.
 
 ## Verify Changes
 

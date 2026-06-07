@@ -1,9 +1,8 @@
 locals {
-  state_bucket_name = var.state_bucket_name != "" ? var.state_bucket_name : "${var.project_id}-offer-scout-ai-tfstate"
+  state_bucket_name = var.state_bucket_name != "" ? var.state_bucket_name : "${var.project_id}-tfstate"
 
   required_services = toset([
     "artifactregistry.googleapis.com",
-    "cloudbuild.googleapis.com",
     "cloudtasks.googleapis.com",
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
@@ -14,15 +13,8 @@ locals {
   ])
 
   deployer_project_roles = toset([
-    "roles/artifactregistry.admin",
-    "roles/cloudtasks.admin",
-    "roles/iam.serviceAccountAdmin",
-    "roles/iam.serviceAccountUser",
-    "roles/resourcemanager.projectIamAdmin",
-    "roles/run.admin",
-    "roles/secretmanager.admin",
-    "roles/serviceusage.serviceUsageAdmin",
-    "roles/storage.admin",
+    "roles/artifactregistry.writer",
+    "roles/run.developer",
   ])
 }
 
@@ -61,7 +53,7 @@ resource "google_storage_bucket" "terraform_state" {
 resource "google_service_account" "github_deployer" {
   project      = var.project_id
   account_id   = "github-deployer"
-  display_name = "GitHub Actions Terraform deployer"
+  display_name = "GitHub Actions app deployer"
 
   depends_on = [google_project_service.required]
 }

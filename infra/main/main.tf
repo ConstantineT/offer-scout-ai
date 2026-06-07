@@ -3,6 +3,8 @@ data "google_project" "current" {
 }
 
 locals {
+  github_deployer_member = "serviceAccount:github-deployer@${var.project_id}.iam.gserviceaccount.com"
+
   secret_ids = toset([
     "gmail-smtp-credentials",
     "groq-api-key",
@@ -106,6 +108,18 @@ resource "google_service_account_iam_member" "cloud_tasks_can_mint_oidc" {
   service_account_id = google_service_account.tasks_invoker.name
   role               = "roles/iam.serviceAccountTokenCreator"
   member             = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-cloudtasks.iam.gserviceaccount.com"
+}
+
+resource "google_service_account_iam_member" "github_can_use_agent_runtime" {
+  service_account_id = google_service_account.agent_runtime.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = local.github_deployer_member
+}
+
+resource "google_service_account_iam_member" "github_can_use_coordinator_runtime" {
+  service_account_id = google_service_account.coordinator_runtime.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = local.github_deployer_member
 }
 
 resource "google_cloud_run_v2_service" "agent" {
