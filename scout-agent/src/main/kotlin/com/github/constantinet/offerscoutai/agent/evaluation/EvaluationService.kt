@@ -14,7 +14,7 @@ import reactor.core.scheduler.Schedulers
 class EvaluationService(
     private val chatClient: ChatClient,
     private val webTool: WebTool,
-    @Value("classpath:prompts/offer-evaluation-system.st")
+    @Value("classpath:prompts/offer-evaluation-system-prompt.md")
     systemPromptResource: Resource,
 ) {
     private val systemPrompt: String = systemPromptResource.inputStream.bufferedReader().readText()
