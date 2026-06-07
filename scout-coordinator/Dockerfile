@@ -10,4 +10,4 @@ RUN pip install --no-cache-dir --no-deps .
 
 ENV PORT=8080
 
-CMD ["sh", "-c", "uvicorn scout_coordinator.main:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["sh", "-c", "uvicorn scout_coordinator.main:app --host 0.0.0.0 --port ${PORT} --proxy-headers --forwarded-allow-ips '*'"]

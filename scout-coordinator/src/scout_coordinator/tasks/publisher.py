@@ -4,7 +4,7 @@ from scout_coordinator.models import EmailProcessingTask
 
 
 class TaskPublisher(Protocol):
-    async def enqueue(self, task: EmailProcessingTask) -> None:
+    async def enqueue(self, task: EmailProcessingTask, target_url: str | None = None) -> None:
         """Schedule email processing."""
 
     async def stop(self) -> None:

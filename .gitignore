@@ -27,6 +27,15 @@ coverage.xml
 htmlcov/
 scout-coordinator/manual-test-fixtures/
 
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+
 # Secrets and local config
 .env
 !.env.example

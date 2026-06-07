@@ -42,6 +42,22 @@ pip install -e .
 
 Create a local `.env` file from the root `.env.example` values.
 
+Coordinator accepts combined credential variables:
+
+```text
+RESEND_CREDENTIALS={"api_key":"...","webhook_secret":"..."}
+GMAIL_SMTP_CREDENTIALS={"username":"gmail@example.com","app_password":"..."}
+```
+
+For local development, the older split variables still work too:
+
+```text
+RESEND_API_KEY=...
+RESEND_WEBHOOK_SECRET=...
+GMAIL_SMTP_USERNAME=...
+GMAIL_SMTP_APP_PASSWORD=...
+```
+
 ## Run Locally
 
 Run `scout-agent` on port `8080`, then run coordinator on port `8081`:
@@ -130,17 +146,20 @@ TASK_BACKEND=cloud_tasks
 CLOUD_TASKS_PROJECT=your-gcp-project
 CLOUD_TASKS_LOCATION=europe-west1
 CLOUD_TASKS_QUEUE=scout-email-processing
-CLOUD_TASKS_TARGET_URL=https://your-cloud-run-url/tasks/process-email
 CLOUD_TASKS_SERVICE_ACCOUNT_EMAIL=scout-tasks@your-gcp-project.iam.gserviceaccount.com
 ```
 
 In Cloud Tasks mode, `/webhooks/resend` creates an HTTP task, and Cloud Tasks
 calls `/tasks/process-email`. The task endpoint verifies Google OIDC.
 
+`CLOUD_TASKS_TARGET_URL` is optional on Cloud Run. If it is empty, coordinator
+derives the task callback URL from the incoming webhook request. Set it only
+when you need an explicit override.
+
 In local mode, `/tasks/process-email` returns `404`. Local processing only starts
 from `/webhooks/resend`.
 
-## Future GCP Deployment
+## GCP Deployment
 
 - Deploy as a public Cloud Run service so Resend can call `/webhooks/resend`.
 - Keep webhook security at the application boundary with Svix signatures.
@@ -148,6 +167,15 @@ from `/webhooks/resend`.
 - Use Cloud Tasks to call `/tasks/process-email` with Google OIDC.
 - Store Resend, Gmail, and profile secrets in Secret Manager.
 - Call private `scout-agent` with `SCOUT_AGENT_AUTH_MODE=cloud_run_oidc`.
+- Terraform for this lives in `../infra/main`.
+- Production uses five active secret values: Groq, Tavily, Resend credentials,
+  Gmail credentials, and profile context.
+
+After deployment, configure Resend webhook URL as:
+
+```text
+https://<scout-coordinator-cloud-run-url>/webhooks/resend
+```
 
 ## Tests
 

@@ -68,7 +68,6 @@ class AppContainer:
                     "CLOUD_TASKS_PROJECT": settings.cloud_tasks_project,
                     "CLOUD_TASKS_LOCATION": settings.cloud_tasks_location,
                     "CLOUD_TASKS_QUEUE": settings.cloud_tasks_queue,
-                    "CLOUD_TASKS_TARGET_URL": settings.cloud_tasks_target_url,
                     "CLOUD_TASKS_SERVICE_ACCOUNT_EMAIL": settings.cloud_tasks_service_account_email,
                 }.items()
                 if not value
@@ -122,8 +121,13 @@ def create_app() -> FastAPI:
             return Response(status_code=status.HTTP_202_ACCEPTED)
 
         webhook_id = request.headers.get("svix-id")
+        task_target_url = None
+        if container.settings.task_backend == "cloud_tasks":
+            task_target_url = container.settings.cloud_tasks_target_url or str(request.url_for("process_email_task"))
+
         await container.task_publisher.enqueue(
-            EmailProcessingTask(email_id=event.data.email_id, webhook_id=webhook_id)
+            EmailProcessingTask(email_id=event.data.email_id, webhook_id=webhook_id),
+            target_url=task_target_url,
         )
         log.info("Scheduled email %s from webhook %s", event.data.email_id, webhook_id)
         return Response(status_code=status.HTTP_202_ACCEPTED)

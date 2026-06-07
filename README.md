@@ -32,15 +32,77 @@ Docker Compose uses only the root `.env` file. Module-local `.env` files and
   - webhook.site capture and replay to `localhost`.
   - ngrok forwarding from Resend to local Docker Compose.
 
-## Future GCP Deployment
+## GCP Deployment
 
-Planned production shape:
+Production shape:
 
 - `scout-coordinator`: public Cloud Run service for Resend webhooks, protected by Svix signature verification.
 - `scout-agent`: private Cloud Run service, invoked only by coordinator using Google ID tokens.
 - Cloud Tasks: async email processing after webhook acceptance.
 - Secret Manager: API keys and SMTP credentials.
 - Artifact Registry and GitHub Actions: image build and deployment pipeline.
+
+Terraform lives in `infra/`:
+
+- `infra/bootstrap`: one-time setup for APIs, Artifact Registry, Terraform state, and GitHub Actions Workload Identity Federation.
+- `infra/main`: Cloud Run services, Cloud Tasks queue, Secret Manager containers, and IAM.
+
+Manual deployment outline:
+
+```bash
+cd infra/bootstrap
+terraform init
+terraform apply -var="project_id=<your-gcp-project-id>"
+```
+
+Then configure these GitHub repository variables from the Terraform outputs:
+
+- `GCP_PROJECT_ID`
+- `GCP_REGION`
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`
+- `GCP_SERVICE_ACCOUNT`
+
+Create the main infrastructure once without Cloud Run services:
+
+```bash
+cd ../main
+terraform init \
+  -backend-config="bucket=<project-id>-offer-scout-ai-tfstate" \
+  -backend-config="prefix=infra/main"
+terraform apply -var="project_id=<your-gcp-project-id>"
+```
+
+Upload secret values manually:
+
+```bash
+printf "secret-value" | gcloud secrets versions add <secret-name> --data-file=-
+```
+
+Required secret names:
+
+- `groq-api-key`
+- `tavily-api-key`
+- `resend-credentials`
+- `gmail-smtp-credentials`
+- `profile-context`
+
+Secret value shapes:
+
+```json
+{"api_key":"...","webhook_secret":"..."}
+```
+
+```json
+{"username":"gmail@example.com","app_password":"..."}
+```
+
+`jina-api-key` is optional and is not injected unless `enable_jina_api_key=true`.
+
+After the first GitHub Actions deployment, set the Resend webhook URL to:
+
+```text
+https://<scout-coordinator-cloud-run-url>/webhooks/resend
+```
 
 ## Development
 

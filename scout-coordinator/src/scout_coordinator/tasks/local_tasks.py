@@ -14,7 +14,7 @@ class LocalTaskPublisher(TaskPublisher):
         self._retry_attempts = retry_attempts
         self._background_tasks: set[asyncio.Task[None]] = set()
 
-    async def enqueue(self, task: EmailProcessingTask) -> None:
+    async def enqueue(self, task: EmailProcessingTask, target_url: str | None = None) -> None:
         background_task = asyncio.create_task(
             self._process_email_with_retries(task),
             name=f"local-email-task-{task.email_id}",

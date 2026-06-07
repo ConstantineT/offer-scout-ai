@@ -28,8 +28,12 @@ class CloudTasksPublisher(TaskPublisher):
         self._oidc_audience = oidc_audience or target_url
         self._dispatch_deadline_seconds = dispatch_deadline_seconds
 
-    async def enqueue(self, task: EmailProcessingTask) -> None:
-        cloud_task = self._build_task(task)
+    async def enqueue(self, task: EmailProcessingTask, target_url: str | None = None) -> None:
+        task_target_url = target_url or self._target_url
+        if not task_target_url:
+            raise ValueError("Cloud Task target URL is required")
+
+        cloud_task = self._build_task(task, task_target_url)
         try:
             await self._client.create_task(parent=self._parent, task=cloud_task)
         except AlreadyExists:
@@ -38,7 +42,7 @@ class CloudTasksPublisher(TaskPublisher):
     async def stop(self) -> None:
         return None
 
-    def _build_task(self, task: EmailProcessingTask) -> tasks_v2.Task:
+    def _build_task(self, task: EmailProcessingTask, target_url: str) -> tasks_v2.Task:
         payload = task.model_dump_json(exclude_none=True).encode("utf-8")
         return tasks_v2.Task(
             {
@@ -48,12 +52,12 @@ class CloudTasksPublisher(TaskPublisher):
                 ),
                 "http_request": {
                     "http_method": tasks_v2.HttpMethod.POST,
-                    "url": self._target_url,
+                    "url": target_url,
                     "headers": {"Content-Type": "application/json"},
                     "body": payload,
                     "oidc_token": {
                         "service_account_email": self._service_account_email,
-                        "audience": self._oidc_audience,
+                        "audience": self._oidc_audience or target_url,
                     },
                 },
                 "dispatch_deadline": {"seconds": self._dispatch_deadline_seconds},
