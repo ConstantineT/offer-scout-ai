@@ -1,15 +1,31 @@
+import json
 from functools import lru_cache
+from typing import Any
 
-from pydantic import Field
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _parse_json_secret(value: str, name: str) -> dict[str, Any]:
+    try:
+        parsed = json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{name} must be valid JSON") from exc
+
+    if not isinstance(parsed, dict):
+        raise ValueError(f"{name} must be a JSON object")
+
+    return parsed
+
+
 class Settings(BaseSettings):
+    resend_credentials: str = ""
     resend_api_key: str = ""
     resend_webhook_secret: str = ""
     resend_base_url: str = "https://api.resend.com"
     resend_timeout_seconds: float = 30.0
 
+    gmail_smtp_credentials: str = ""
     gmail_smtp_username: str = ""
     gmail_smtp_app_password: str = ""
     gmail_smtp_host: str = "smtp.gmail.com"
@@ -41,6 +57,29 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @model_validator(mode="after")
+    def apply_combined_credentials(self):
+        if self.resend_credentials:
+            credentials = _parse_json_secret(self.resend_credentials, "RESEND_CREDENTIALS")
+            self.resend_api_key = str(credentials.get("api_key") or self.resend_api_key)
+            self.resend_webhook_secret = str(credentials.get("webhook_secret") or self.resend_webhook_secret)
+
+        if self.gmail_smtp_credentials:
+            if self.gmail_smtp_credentials.lstrip().startswith("{"):
+                credentials = _parse_json_secret(self.gmail_smtp_credentials, "GMAIL_SMTP_CREDENTIALS")
+                self.gmail_smtp_username = str(credentials.get("username") or self.gmail_smtp_username)
+                self.gmail_smtp_app_password = str(
+                    credentials.get("app_password") or self.gmail_smtp_app_password
+                )
+            else:
+                username, separator, app_password = self.gmail_smtp_credentials.partition(":")
+                if not separator:
+                    raise ValueError("GMAIL_SMTP_CREDENTIALS must be JSON or username:app_password")
+                self.gmail_smtp_username = username
+                self.gmail_smtp_app_password = app_password
+
+        return self
 
 
 @lru_cache

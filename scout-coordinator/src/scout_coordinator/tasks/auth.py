@@ -12,7 +12,11 @@ async def verify_task_request(request: Request, settings: Settings) -> None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing bearer token")
 
     bearer_token = authorization.split(" ", 1)[1]
-    audience = settings.cloud_tasks_oidc_audience or settings.cloud_tasks_target_url
+    audience = (
+        settings.cloud_tasks_oidc_audience
+        or settings.cloud_tasks_target_url
+        or str(request.url_for("process_email_task"))
+    )
 
     try:
         claims = await anyio.to_thread.run_sync(

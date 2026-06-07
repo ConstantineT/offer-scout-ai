@@ -56,6 +56,48 @@ async def test_cloud_tasks_publisher_creates_http_task() -> None:
     assert cloud_task.dispatch_deadline.seconds == 600
 
 
+async def test_cloud_tasks_publisher_uses_enqueue_target_url_when_not_configured() -> None:
+    client = FakeCloudTasksClient()
+    publisher = CloudTasksPublisher(
+        project="project-1",
+        location="europe-west1",
+        queue="email-processing",
+        target_url="",
+        service_account_email="tasks@example.iam.gserviceaccount.com",
+        dispatch_deadline_seconds=600,
+        client=client,  # type: ignore[arg-type]
+    )
+
+    await publisher.enqueue(
+        EmailProcessingTask(email_id="email-1", webhook_id="webhook-1"),
+        target_url="https://coordinator.example.com/tasks/process-email",
+    )
+
+    assert client.created is not None
+    cloud_task = client.created["task"]
+    assert cloud_task.http_request.url == "https://coordinator.example.com/tasks/process-email"
+    assert cloud_task.http_request.oidc_token.audience == "https://coordinator.example.com/tasks/process-email"
+
+
+async def test_cloud_tasks_publisher_requires_target_url() -> None:
+    publisher = CloudTasksPublisher(
+        project="project-1",
+        location="europe-west1",
+        queue="email-processing",
+        target_url="",
+        service_account_email="tasks@example.iam.gserviceaccount.com",
+        dispatch_deadline_seconds=600,
+        client=FakeCloudTasksClient(),  # type: ignore[arg-type]
+    )
+
+    try:
+        await publisher.enqueue(EmailProcessingTask(email_id="email-1", webhook_id="webhook-1"))
+    except ValueError as exc:
+        assert str(exc) == "Cloud Task target URL is required"
+    else:
+        raise AssertionError("Expected ValueError")
+
+
 async def test_cloud_tasks_publisher_ignores_existing_task() -> None:
     publisher = CloudTasksPublisher(
         project="project-1",
