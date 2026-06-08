@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "dev.kotryos.offerscoutai"
-version = "0.2.0-SNAPSHOT"
+version = "1.0.0"
 
 java {
     toolchain {
