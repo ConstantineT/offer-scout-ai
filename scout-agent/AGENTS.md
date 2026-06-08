@@ -26,6 +26,8 @@ Short instructions for AI agents working in `scout-agent`.
 - Avoid magic numbers and string literals when configuration would make the intent clearer.
 - Production deployment is private Cloud Run; secrets come from Secret Manager env vars.
 - Terraform infrastructure applies are manual; GitHub Actions only pushes images and updates Cloud Run revisions.
+- Use `X-Correlation-Id` for request correlation; keep cid handling in the filter/MDC, not in individual log messages.
+- Keep production logs concise but useful at `INFO`: request, model, tool, web search, and page-fetch milestones are enough.
 
 ## Verify Changes
 
