@@ -4,4 +4,4 @@ TAVILY_API_KEY: tvly-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 logging:
   level:
-    com.github.constantinet.offerscoutai.agent: DEBUG
+    dev.kotryos.offerscoutai.agent: DEBUG

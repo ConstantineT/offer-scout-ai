@@ -41,6 +41,7 @@ Production shape:
 - Cloud Tasks: async email processing after webhook acceptance.
 - Secret Manager: API keys and SMTP credentials.
 - Artifact Registry and GitHub Actions: image build, image push, and Cloud Run revision updates.
+- Cloud Run max instances default to `1` per service for this personal deployment.
 
 Terraform lives in `infra/`:
 
@@ -101,6 +102,10 @@ Secret value shapes:
 Push the deployment workflow to `main`. The first GitHub Actions deployment
 pushes Docker images to Artifact Registry. If Cloud Run services do not exist
 yet, it skips service updates.
+
+The workflow also has a manual trigger in GitHub Actions. Run it from `main`
+when you want to rebuild and redeploy the current main commit without creating
+a new commit.
 
 Then create Cloud Run services manually with Terraform using the pushed image
 tags:

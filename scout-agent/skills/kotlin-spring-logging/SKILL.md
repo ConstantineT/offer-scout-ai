@@ -35,9 +35,12 @@ log.info("Evaluating offer $offerId")
 - Do not log API keys, full prompts, full resumes, or full offer text.
 - Prefer a few high-signal logs over many lifecycle logs.
 - Keep logging concise.
+- Keep correlation id in MDC/logging infrastructure; do not manually append cid to each message.
 
 ## Scout-Agent Notes
 
 - `GlobalExceptionHandler` owns logs for uncaught request-level failures.
 - `webintegration` may log expected Tavily/Jina failures before returning fallback tool text.
+- Use `X-Correlation-Id` consistently for inbound/outbound request correlation.
+- Production `INFO` logs should show request, model, tool, web search, and page-fetch milestones without logging full content.
 - Avoid duplicate logging: either log where the exception is handled, or let it bubble.

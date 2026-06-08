@@ -17,6 +17,7 @@ Short instructions for AI agents working in `scout-coordinator`.
 
 ## Important Rules
 
+- Use `skills/python-fastapi-logging/SKILL.md` when adding or reviewing coordinator logs.
 - Keep `/webhooks/resend` protected by Svix signature verification.
 - Keep `/tasks/process-email` disabled in local mode and OIDC-protected in Cloud Tasks mode.
 - Do not add a public `/health` endpoint unless deployment requirements change.
@@ -24,6 +25,9 @@ Short instructions for AI agents working in `scout-coordinator`.
 - Production uses Cloud Tasks mode; the task callback URL may be derived from the Cloud Run request.
 - Production bundles Resend and Gmail credentials into `RESEND_CREDENTIALS` and `GMAIL_SMTP_CREDENTIALS`.
 - Terraform infrastructure applies are manual; GitHub Actions only pushes images and updates Cloud Run revisions.
+- Use Resend `email_id` as the correlation id.
+- Keep correlation id handling in `logging_context.py`; do not manually append `cid=...` to every log message.
+- Pass correlation to `scout-agent` through `X-Correlation-Id`.
 - Keep I/O async with `httpx`, `aiosmtplib`, and async Google clients.
 - Offload blocking parsing or auth helpers with `anyio.to_thread`.
 - Convert attachments to text before sending them to `scout-agent`; do not send raw bytes.

@@ -123,10 +123,12 @@ URL because the free URL usually changes.
 
 - `/webhooks/resend` verifies the Svix signature from Resend.
 - Valid `email.received` events are scheduled through the configured task backend.
+- The Resend `email_id` is used as the correlation id for logs and downstream calls.
 - The processor fetches the full email from Resend.
 - Supported attachments are downloaded and converted to text.
 - Combined email text is sent to `scout-agent`.
 - The result is emailed back through Gmail SMTP.
+- Coordinator logs use a Spring-style format with automatic `[cid=...]` injection from Python `ContextVar`.
 
 ## Task Backends
 
@@ -167,6 +169,7 @@ from `/webhooks/resend`.
 - Use Cloud Tasks to call `/tasks/process-email` with Google OIDC.
 - Store Resend, Gmail, and profile secrets in Secret Manager.
 - Call private `scout-agent` with `SCOUT_AGENT_AUTH_MODE=cloud_run_oidc`.
+- Pass `X-Correlation-Id` to `scout-agent` automatically from the current logging context.
 - Terraform for this lives in `../infra/main`.
 - Production uses five active secret values: Groq, Tavily, Resend credentials,
   Gmail credentials, and profile context.

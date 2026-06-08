@@ -7,7 +7,7 @@ plugins {
     kotlin("plugin.spring") version "2.1.0"
 }
 
-group = "com.github.constantinet.offerscoutai"
+group = "dev.kotryos.offerscoutai"
 version = "0.2.0-SNAPSHOT"
 
 java {
