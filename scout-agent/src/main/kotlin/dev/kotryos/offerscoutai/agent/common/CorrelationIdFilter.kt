@@ -1,4 +1,4 @@
-package com.github.constantinet.offerscoutai.agent.common
+package dev.kotryos.offerscoutai.agent.common
 
 import io.micrometer.context.ContextRegistry
 import org.slf4j.MDC

@@ -1,4 +1,4 @@
-package com.github.constantinet.offerscoutai.agent.evaluation
+package dev.kotryos.offerscoutai.agent.evaluation
 
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.context.annotation.Bean

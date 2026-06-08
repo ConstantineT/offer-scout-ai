@@ -1,4 +1,4 @@
-package com.github.constantinet.offerscoutai.agent.webintegration
+package dev.kotryos.offerscoutai.agent.webintegration
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties

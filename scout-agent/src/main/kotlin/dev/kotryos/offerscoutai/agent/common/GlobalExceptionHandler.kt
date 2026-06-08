@@ -1,4 +1,4 @@
-package com.github.constantinet.offerscoutai.agent.common
+package dev.kotryos.offerscoutai.agent.common
 
 import org.slf4j.LoggerFactory
 import org.springframework.ai.retry.NonTransientAiException

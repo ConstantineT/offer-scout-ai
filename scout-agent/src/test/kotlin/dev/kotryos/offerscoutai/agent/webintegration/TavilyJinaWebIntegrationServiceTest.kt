@@ -1,4 +1,4 @@
-package com.github.constantinet.offerscoutai.agent.webintegration
+package dev.kotryos.offerscoutai.agent.webintegration
 
 import org.junit.jupiter.api.Test
 import org.assertj.core.api.Assertions.assertThat

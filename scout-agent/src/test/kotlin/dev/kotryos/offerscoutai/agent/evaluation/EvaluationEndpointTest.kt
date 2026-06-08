@@ -1,7 +1,7 @@
-package com.github.constantinet.offerscoutai.agent.evaluation
+package dev.kotryos.offerscoutai.agent.evaluation
 
-import com.github.constantinet.offerscoutai.agent.common.CorrelationIdFilter
-import com.github.constantinet.offerscoutai.agent.common.GlobalExceptionHandler
+import dev.kotryos.offerscoutai.agent.common.CorrelationIdFilter
+import dev.kotryos.offerscoutai.agent.common.GlobalExceptionHandler
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`

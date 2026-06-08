@@ -1,4 +1,4 @@
-package com.github.constantinet.offerscoutai.agent.evaluation
+package dev.kotryos.offerscoutai.agent.evaluation
 
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.PostMapping

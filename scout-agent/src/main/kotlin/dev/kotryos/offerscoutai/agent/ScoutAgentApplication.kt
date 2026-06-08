@@ -1,4 +1,4 @@
-package com.github.constantinet.offerscoutai.agent
+package dev.kotryos.offerscoutai.agent
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

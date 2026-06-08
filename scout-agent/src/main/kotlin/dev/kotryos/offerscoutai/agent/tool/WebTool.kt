@@ -1,6 +1,6 @@
-package com.github.constantinet.offerscoutai.agent.tool
+package dev.kotryos.offerscoutai.agent.tool
 
-import com.github.constantinet.offerscoutai.agent.webintegration.WebIntegrationService
+import dev.kotryos.offerscoutai.agent.webintegration.WebIntegrationService
 import org.slf4j.LoggerFactory
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.ai.tool.annotation.ToolParam

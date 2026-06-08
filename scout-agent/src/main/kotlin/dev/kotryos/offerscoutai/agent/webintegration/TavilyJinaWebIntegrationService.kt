@@ -1,4 +1,4 @@
-package com.github.constantinet.offerscoutai.agent.webintegration
+package dev.kotryos.offerscoutai.agent.webintegration
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.slf4j.LoggerFactory

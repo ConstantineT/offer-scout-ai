@@ -1,6 +1,6 @@
-package com.github.constantinet.offerscoutai.agent.tool
+package dev.kotryos.offerscoutai.agent.tool
 
-import com.github.constantinet.offerscoutai.agent.webintegration.WebIntegrationService
+import dev.kotryos.offerscoutai.agent.webintegration.WebIntegrationService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
