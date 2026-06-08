@@ -131,13 +131,13 @@ resource "google_cloud_run_v2_service" "agent" {
   deletion_protection = false
   ingress             = "INGRESS_TRAFFIC_ALL"
 
+  scaling {
+    max_instance_count = var.max_instance_count
+  }
+
   template {
     service_account = google_service_account.agent_runtime.email
     timeout         = "300s"
-
-    scaling {
-      max_instance_count = var.max_instance_count
-    }
 
     containers {
       image = var.agent_image
@@ -203,13 +203,13 @@ resource "google_cloud_run_v2_service" "coordinator" {
   deletion_protection = false
   ingress             = "INGRESS_TRAFFIC_ALL"
 
+  scaling {
+    max_instance_count = var.max_instance_count
+  }
+
   template {
     service_account = google_service_account.coordinator_runtime.email
     timeout         = "300s"
-
-    scaling {
-      max_instance_count = var.max_instance_count
-    }
 
     containers {
       image = var.coordinator_image

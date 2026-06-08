@@ -54,5 +54,5 @@ variable "enable_jina_api_key" {
 variable "max_instance_count" {
   description = "Maximum Cloud Run instances per service."
   type        = number
-  default     = 2
+  default     = 1
 }

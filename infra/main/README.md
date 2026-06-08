@@ -75,3 +75,9 @@ After apply, set the Resend webhook URL to the `resend_webhook_url` output.
 Future pushes to `main` update existing Cloud Run service images through
 GitHub Actions. Terraform remains a manual Cloud Shell operation for
 infrastructure changes.
+
+The GitHub Actions workflow can also be run manually from `main` to rebuild and
+redeploy the current commit.
+
+Cloud Run max instances default to `1` per service. Terraform sets this as a
+service-level scaling limit, not a revision-only limit.
