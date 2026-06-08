@@ -130,9 +130,8 @@ resource "google_cloud_run_v2_service" "agent" {
   location            = var.region
   deletion_protection = false
   ingress             = "INGRESS_TRAFFIC_ALL"
-
-  scaling {
-    max_instance_count = var.max_instance_count
+  annotations = {
+    "run.googleapis.com/maxScale" = tostring(var.max_instance_count)
   }
 
   template {
@@ -202,9 +201,8 @@ resource "google_cloud_run_v2_service" "coordinator" {
   location            = var.region
   deletion_protection = false
   ingress             = "INGRESS_TRAFFIC_ALL"
-
-  scaling {
-    max_instance_count = var.max_instance_count
+  annotations = {
+    "run.googleapis.com/maxScale" = tostring(var.max_instance_count)
   }
 
   template {
