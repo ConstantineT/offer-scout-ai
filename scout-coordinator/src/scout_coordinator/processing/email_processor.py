@@ -3,7 +3,6 @@ import logging
 import anyio
 
 from scout_coordinator.attachments.extractor import extract_attachment_text, html_to_text, is_supported
-from scout_coordinator.integrations.gmail import GmailSmtpSender
 from scout_coordinator.integrations.resend import ResendClient
 from scout_coordinator.integrations.scout_agent import ScoutAgentClient
 from scout_coordinator.models import AttachmentText, ReceivedAttachment, ReceivedEmail
@@ -16,14 +15,14 @@ class EmailProcessor:
         self,
         resend_client: ResendClient,
         scout_agent_client: ScoutAgentClient,
-        gmail_sender: GmailSmtpSender,
+        reply_from_email: str,
         profile_context: str,
         max_attachment_bytes: int,
         max_offer_text_chars: int,
     ) -> None:
         self._resend_client = resend_client
         self._scout_agent_client = scout_agent_client
-        self._gmail_sender = gmail_sender
+        self._reply_from_email = reply_from_email
         self._profile_context = profile_context
         self._max_attachment_bytes = max_attachment_bytes
         self._max_offer_text_chars = max_offer_text_chars
@@ -43,7 +42,8 @@ class EmailProcessor:
         )
         log.info("Received evaluation for email %s with %s chars", email_id, len(evaluation))
 
-        await self._gmail_sender.send_reply(
+        await self._resend_client.send_reply(
+            from_email=self._reply_from_email,
             to_email=email.from_email,
             subject=email.subject or "Scout evaluation",
             body=evaluation,

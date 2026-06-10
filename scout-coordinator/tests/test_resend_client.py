@@ -1,3 +1,5 @@
+import json
+
 import httpx
 import pytest
 
@@ -80,6 +82,75 @@ async def test_resend_client_downloads_attachment_bytes() -> None:
     assert data == b"attachment bytes"
 
 
+async def test_resend_client_sends_threaded_reply() -> None:
+    requests: list[httpx.Request] = []
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json={"id": "sent-email-1"})
+
+    client = ResendClient(
+        api_key="test-key",
+        base_url="https://resend.example.com",
+        timeout_seconds=30.0,
+        transport=httpx.MockTransport(handler),
+    )
+
+    try:
+        await client.send_reply(
+            from_email="Offer Scout <scout@your-domain>",
+            to_email="sender@example.com",
+            subject="Test offer",
+            body="Worth pursuing.",
+            original_message_id="<message-1@example.com>",
+        )
+    finally:
+        await client.close()
+
+    assert requests[0].method == "POST"
+    assert requests[0].url == "https://resend.example.com/emails"
+    assert requests[0].headers["authorization"] == "Bearer test-key"
+    assert json.loads(requests[0].read()) == {
+        "from": "Offer Scout <scout@your-domain>",
+        "to": ["sender@example.com"],
+        "subject": "Re: Test offer",
+        "text": "Worth pursuing.",
+        "headers": {
+            "In-Reply-To": "<message-1@example.com>",
+            "References": "<message-1@example.com>",
+        },
+    }
+
+
+async def test_resend_client_does_not_duplicate_reply_prefix_or_headers() -> None:
+    requests: list[httpx.Request] = []
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json={"id": "sent-email-1"})
+
+    client = ResendClient(
+        api_key="test-key",
+        base_url="https://resend.example.com",
+        timeout_seconds=30.0,
+        transport=httpx.MockTransport(handler),
+    )
+
+    try:
+        await client.send_reply(
+            from_email="Offer Scout <scout@your-domain>",
+            to_email="sender@example.com",
+            subject="Re: Test offer",
+            body="Worth pursuing.",
+        )
+    finally:
+        await client.close()
+
+    payload = json.loads(requests[0].read())
+    assert payload["subject"] == "Re: Test offer"
+    assert "headers" not in payload
+
+
 async def test_resend_client_rejects_attachment_response_without_download_url() -> None:
     async def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, json={})
@@ -132,5 +203,29 @@ async def test_resend_client_raises_for_attachment_download_url_http_error(statu
     try:
         with pytest.raises(httpx.HTTPStatusError):
             await client.get_attachment_download_url("email-1", "att-1")
+    finally:
+        await client.close()
+
+
+@pytest.mark.parametrize("status_code", [403, 500])
+async def test_resend_client_raises_for_send_reply_http_error(status_code: int) -> None:
+    async def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(status_code, request=request)
+
+    client = ResendClient(
+        api_key="test-key",
+        base_url="https://resend.example.com",
+        timeout_seconds=30.0,
+        transport=httpx.MockTransport(handler),
+    )
+
+    try:
+        with pytest.raises(httpx.HTTPStatusError):
+            await client.send_reply(
+                from_email="Offer Scout <scout@your-domain>",
+                to_email="sender@example.com",
+                subject="Test offer",
+                body="Worth pursuing.",
+            )
     finally:
         await client.close()

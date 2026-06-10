@@ -1,14 +1,15 @@
 # Scout Coordinator
 
 Python/FastAPI service that receives Resend email webhooks, asks `scout-agent`
-to evaluate the offer, and replies through Gmail SMTP.
+to evaluate the offer, and replies through the Resend Email API.
 
 ## Requirements
 
 - Python 3.12
 - Resend API key
 - Resend webhook signing secret
-- Gmail app password
+- Verified Resend sending domain
+- Resend receiving domain for forwarded job-offer emails
 - running `scout-agent`
 
 ## Local Setup For Direct Python Run
@@ -42,11 +43,14 @@ pip install -e .
 
 Create a local `.env` file from the root `.env.example` values.
 
+For email delivery, configure a custom email domain in Resend and add the DNS
+records requested by Resend at your domain provider. Keep the concrete sender
+address in local `.env` or in the production `RESEND_CREDENTIALS` secret.
+
 Coordinator accepts combined credential variables:
 
 ```text
-RESEND_CREDENTIALS={"api_key":"...","webhook_secret":"..."}
-GMAIL_SMTP_CREDENTIALS={"username":"gmail@example.com","app_password":"..."}
+RESEND_CREDENTIALS={"api_key":"...","webhook_secret":"...","from_email":"Offer Scout <scout@your-domain>"}
 ```
 
 For local development, the older split variables still work too:
@@ -54,8 +58,7 @@ For local development, the older split variables still work too:
 ```text
 RESEND_API_KEY=...
 RESEND_WEBHOOK_SECRET=...
-GMAIL_SMTP_USERNAME=...
-GMAIL_SMTP_APP_PASSWORD=...
+RESEND_FROM_EMAIL=Offer Scout <scout@your-domain>
 ```
 
 ## Run Locally
@@ -127,7 +130,7 @@ URL because the free URL usually changes.
 - The processor fetches the full email from Resend.
 - Supported attachments are downloaded and converted to text.
 - Combined email text is sent to `scout-agent`.
-- The result is emailed back through Gmail SMTP.
+- The result is emailed back through the Resend Email API.
 - Coordinator logs use a Spring-style format with automatic `[cid=...]` injection from Python `ContextVar`.
 
 ## Task Backends
@@ -141,7 +144,7 @@ TASK_BACKEND=local
 In local mode, `/webhooks/resend` starts a background coroutine in the same
 process. This is good for webhook.site replay and ngrok testing.
 
-Cloud Tasks mode is for GCP later:
+Cloud Tasks mode is for production on GCP:
 
 ```text
 TASK_BACKEND=cloud_tasks
@@ -167,12 +170,14 @@ from `/webhooks/resend`.
 - Keep webhook security at the application boundary with Svix signatures.
 - Use `TASK_BACKEND=cloud_tasks` in production.
 - Use Cloud Tasks to call `/tasks/process-email` with Google OIDC.
-- Store Resend, Gmail, and profile secrets in Secret Manager.
+- Store Resend and profile secrets in Secret Manager.
+- Configure the Resend custom email domain outside Terraform, using DNS records
+  from Resend and your domain provider.
 - Call private `scout-agent` with `SCOUT_AGENT_AUTH_MODE=cloud_run_oidc`.
 - Pass `X-Correlation-Id` to `scout-agent` automatically from the current logging context.
 - Terraform for this lives in `../infra/main`.
-- Production uses five active secret values: Groq, Tavily, Resend credentials,
-  Gmail credentials, and profile context.
+- Production uses four active secret values: Groq, Tavily, Resend credentials,
+  and profile context.
 
 After deployment, configure Resend webhook URL as:
 

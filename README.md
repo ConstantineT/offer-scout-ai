@@ -5,7 +5,7 @@ Offer Scout AI is a personal AI service for evaluating job offers against a cand
 ## Projects
 
 - `scout-agent`: Kotlin/Spring Boot service that evaluates job offers with Spring AI, Groq-compatible chat, Tavily search, and Jina page fetching.
-- `scout-coordinator`: Python/FastAPI service that receives Resend email webhooks, extracts email and attachment text, calls `scout-agent`, and replies through Gmail SMTP.
+- `scout-coordinator`: Python/FastAPI service that receives Resend email webhooks, extracts email and attachment text, calls `scout-agent`, and replies through the Resend Email API.
 
 ## Local Run
 
@@ -39,7 +39,7 @@ Production shape:
 - `scout-coordinator`: public Cloud Run service for Resend webhooks, protected by Svix signature verification.
 - `scout-agent`: private Cloud Run service, invoked only by coordinator using Google ID tokens.
 - Cloud Tasks: async email processing after webhook acceptance.
-- Secret Manager: API keys and SMTP credentials.
+- Secret Manager: API keys, webhook credentials, and candidate profile context.
 - Artifact Registry and GitHub Actions: image build, image push, and Cloud Run revision updates.
 - Cloud Run max instances default to `1` per service for this personal deployment.
 
@@ -53,8 +53,12 @@ Manual deployment outline:
 ```bash
 cd infra/bootstrap
 terraform init
-terraform apply -var="project_id=<your-gcp-project-id>"
+terraform apply \
+  -var="project_id=<your-gcp-project-id>" \
+  -var="github_owner=<your-github-owner>"
 ```
+
+`github_owner` is the GitHub user or organization that owns the repository.
 
 Then configure these GitHub repository variables from the Terraform outputs:
 
@@ -84,18 +88,17 @@ Required secret names:
 - `groq-api-key`
 - `tavily-api-key`
 - `resend-credentials`
-- `gmail-smtp-credentials`
 - `profile-context`
 
 Secret value shapes:
 
 ```json
-{"api_key":"...","webhook_secret":"..."}
+{"api_key":"...","webhook_secret":"...","from_email":"Offer Scout <scout@your-domain>"}
 ```
 
-```json
-{"username":"gmail@example.com","app_password":"..."}
-```
+For email use, configure a custom email domain in Resend and add the DNS
+records requested by Resend at your domain provider. The same verified domain
+should support receiving forwarded job-offer emails and sending replies.
 
 `jina-api-key` is optional and is not injected unless `enable_jina_api_key=true`.
 

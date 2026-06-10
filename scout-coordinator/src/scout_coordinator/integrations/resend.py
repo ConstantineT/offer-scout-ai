@@ -40,5 +40,35 @@ class ResendClient:
         response.raise_for_status()
         return response.content
 
+    async def send_reply(
+        self,
+        from_email: str,
+        to_email: str,
+        subject: str,
+        body: str,
+        original_message_id: str | None = None,
+    ) -> None:
+        payload: dict[str, object] = {
+            "from": from_email,
+            "to": [to_email],
+            "subject": self._reply_subject(subject),
+            "text": body,
+        }
+
+        if original_message_id:
+            payload["headers"] = {
+                "In-Reply-To": original_message_id,
+                "References": original_message_id,
+            }
+
+        response = await self._client.post("/emails", json=payload)
+        response.raise_for_status()
+
     async def close(self) -> None:
         await self._client.aclose()
+
+    @staticmethod
+    def _reply_subject(subject: str) -> str:
+        if subject.lower().startswith("re:"):
+            return subject
+        return f"Re: {subject}"

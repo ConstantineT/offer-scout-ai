@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 log.info("Fetched email %s with %s attachment(s)", email_id, count)
 ```
 
-- Do not log API keys, SMTP credentials, webhook secrets, full email bodies, full attachment text, profile context, or full AI output.
+- Do not log API keys, webhook secrets, full email bodies, full attachment text, profile context, or full AI output.
 - Log high-signal milestones at `INFO`.
 - Log expected recoverable external failures at `warning`.
 - Log unexpected handled failures with `exception`.
