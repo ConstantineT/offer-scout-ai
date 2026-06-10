@@ -11,8 +11,13 @@ infrastructure.
 
 ```bash
 terraform init
-terraform apply -var="project_id=<your-gcp-project-id>"
+terraform apply \
+  -var="project_id=<your-gcp-project-id>" \
+  -var="github_owner=<your-github-owner>"
 ```
+
+`github_owner` is the GitHub user or organization that owns the repository.
+It is not secret, but it is deployment-specific and therefore has no default.
 
 Use the outputs to configure GitHub repository variables:
 

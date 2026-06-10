@@ -26,18 +26,17 @@ Required secret names:
 - `groq-api-key`
 - `tavily-api-key`
 - `resend-credentials`
-- `gmail-smtp-credentials`
 - `profile-context`
 
 Secret value shapes:
 
 ```json
-{"api_key":"...","webhook_secret":"..."}
+{"api_key":"...","webhook_secret":"...","from_email":"Offer Scout <scout@your-domain>"}
 ```
 
-```json
-{"username":"gmail@example.com","app_password":"..."}
-```
+Before production email testing, configure the custom email domain in Resend
+and add the DNS records requested by Resend at your domain provider. Terraform
+does not manage public DNS for this project.
 
 Optional:
 

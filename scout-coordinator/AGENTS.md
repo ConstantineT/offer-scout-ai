@@ -11,7 +11,7 @@ Short instructions for AI agents working in `scout-coordinator`.
 ## Project Basics
 
 - Python / FastAPI service.
-- Receives Resend webhooks, fetches the full email, extracts attachment text, calls `scout-agent`, and replies by Gmail SMTP.
+- Receives Resend webhooks, fetches the full email, extracts attachment text, calls `scout-agent`, and replies through the Resend Email API.
 - Configuration comes from environment variables through Pydantic `Settings`.
 - Docker Compose uses the root `.env`; direct local Python runs may use `scout-coordinator/.env`.
 
@@ -23,12 +23,13 @@ Short instructions for AI agents working in `scout-coordinator`.
 - Do not add a public `/health` endpoint unless deployment requirements change.
 - Production deployment is public Cloud Run for Resend, but webhook access must stay Svix-protected.
 - Production uses Cloud Tasks mode; the task callback URL may be derived from the Cloud Run request.
-- Production bundles Resend and Gmail credentials into `RESEND_CREDENTIALS` and `GMAIL_SMTP_CREDENTIALS`.
+- Production bundles the Resend API key, webhook secret, and sender address into `RESEND_CREDENTIALS`.
+- Resend custom-domain DNS is configured outside Terraform; keep docs provider-neutral.
 - Terraform infrastructure applies are manual; GitHub Actions only pushes images and updates Cloud Run revisions.
 - Use Resend `email_id` as the correlation id.
 - Keep correlation id handling in `logging_context.py`; do not manually append `cid=...` to every log message.
 - Pass correlation to `scout-agent` through `X-Correlation-Id`.
-- Keep I/O async with `httpx`, `aiosmtplib`, and async Google clients.
+- Keep I/O async with `httpx` and async Google clients.
 - Offload blocking parsing or auth helpers with `anyio.to_thread`.
 - Convert attachments to text before sending them to `scout-agent`; do not send raw bytes.
 - Do not commit secrets, `.env` files, generated fixtures, virtualenvs, caches, or coverage output.
