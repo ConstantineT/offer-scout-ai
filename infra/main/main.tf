@@ -6,7 +6,6 @@ locals {
   github_deployer_member = "serviceAccount:github-deployer@${var.project_id}.iam.gserviceaccount.com"
 
   secret_ids = toset([
-    "gmail-smtp-credentials",
     "groq-api-key",
     "jina-api-key",
     "profile-context",
@@ -20,7 +19,6 @@ locals {
   ))
 
   coordinator_secret_ids = toset([
-    "gmail-smtp-credentials",
     "profile-context",
     "resend-credentials",
   ])
@@ -275,30 +273,10 @@ resource "google_cloud_run_v2_service" "coordinator" {
       }
 
       env {
-        name  = "GMAIL_SMTP_HOST"
-        value = "smtp.gmail.com"
-      }
-
-      env {
-        name  = "GMAIL_SMTP_PORT"
-        value = "587"
-      }
-
-      env {
         name = "RESEND_CREDENTIALS"
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.secrets["resend-credentials"].secret_id
-            version = "latest"
-          }
-        }
-      }
-
-      env {
-        name = "GMAIL_SMTP_CREDENTIALS"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.secrets["gmail-smtp-credentials"].secret_id
             version = "latest"
           }
         }

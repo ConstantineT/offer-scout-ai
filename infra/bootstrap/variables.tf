@@ -12,7 +12,6 @@ variable "region" {
 variable "github_owner" {
   description = "GitHub organization or user that owns the repository."
   type        = string
-  default     = "Kotryos"
 }
 
 variable "github_repo" {
