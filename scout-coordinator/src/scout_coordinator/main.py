@@ -6,7 +6,6 @@ from pydantic import ValidationError
 from svix.webhooks import Webhook, WebhookVerificationError
 
 from scout_coordinator.config import Settings, get_settings
-from scout_coordinator.integrations.gmail import GmailSmtpSender
 from scout_coordinator.integrations.resend import ResendClient
 from scout_coordinator.integrations.scout_agent import ScoutAgentClient
 from scout_coordinator.logging_context import configure_logging, correlation_id_scope
@@ -34,16 +33,10 @@ class AppContainer:
             auth_mode=settings.scout_agent_auth_mode,
             audience=settings.scout_agent_audience,
         )
-        self.gmail_sender = GmailSmtpSender(
-            username=settings.gmail_smtp_username,
-            app_password=settings.gmail_smtp_app_password,
-            host=settings.gmail_smtp_host,
-            port=settings.gmail_smtp_port,
-        )
         self.email_processor = EmailProcessor(
             resend_client=self.resend_client,
             scout_agent_client=self.scout_agent_client,
-            gmail_sender=self.gmail_sender,
+            reply_from_email=settings.resend_from_email,
             profile_context=settings.profile_context,
             max_attachment_bytes=settings.max_attachment_bytes,
             max_offer_text_chars=settings.max_offer_text_chars,
